@@ -1,39 +1,119 @@
 import datetime
-from typing import List
+from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from database.models import MovieStatusEnum
 
 
-class Pagination(BaseModel):
-    prev_page: str | None = None
-    next_page: str | None = None
-    total_pages: int | None = None
-    items_per_page: int | None = None
+class GenreBase(BaseModel):
+    name: str
 
 
-class Genre(BaseModel):
+class GenreRead(GenreBase):
     id: int
+
+
+class CountryBase(BaseModel):
+    code: str
+    name: Optional[str] = None
+
+
+class CountryRead(CountryBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class ActorBase(BaseModel):
     name: str
 
-class MovieBase(BaseModel):
+
+class ActorRead(ActorBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class LanguageBase(BaseModel):
     name: str
-    date: datetime.date
-    score: float
+
+
+class LanguageRead(LanguageBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class MovieCreate(BaseModel):
+    name: str = Field(max_length=255)
+    date: datetime.date = Field(lt=datetime.date.today() + datetime.timedelta(days=365))
+    score: float = Field(gt=0, lt=100)
     overview: str
     status: MovieStatusEnum
-    budget: float
-    revenue: float
-    country_id: int
+    budget: float = Field(gt=0)
+    revenue: float = Field(gt=0)
+    country: str
+    genres: List[str]
+    actors: List[str]
+    languages: List[str]
 
 
-class MovieRead(BaseModel, Pagination):
+class MovieRead(MovieCreate):
+    id: int
+    genres: List[GenreRead]
+    country: CountryRead
+    actors: List[ActorRead]
+    languages: List[LanguageRead]
+
+    class Config:
+        orm_mode = True
+
+
+class MovieListItemSchema(BaseModel):
     id: int
     name: str
     date: datetime.date
     score: float
     overview: str
-
 
     class Config:
         from_attributes = True
+
+
+class MovieListResponseSchema(BaseModel):
+    prev_page: Optional[str] = None
+    next_page: Optional[str] = None
+    total_pages: int
+    total_items: int
+    movies: list[MovieListItemSchema]
+
+    class Config:
+        orm_mode = True
+
+
+class MovieDetailSchema(BaseModel):
+    id: int
+    name: str = Field(max_length=255)
+    date: datetime.date = Field(lt=datetime.date.today() + datetime.timedelta(days=365))
+    score: float = Field(gt=0, lt=100)
+    overview: str
+    status: MovieStatusEnum
+    budget: float = Field(gt=0)
+    revenue: float = Field(gt=0)
+    country: CountryRead
+    genres: List[GenreRead]
+    actors: List[ActorRead]
+    languages: List[LanguageRead]
+
+
+class MovieUpdateSchema(BaseModel):
+    name: Optional[str] = Field(max_length=255, default=None,)
+    date: Optional[datetime.date] = Field(default=None, lt=datetime.date.today() + datetime.timedelta(days=365))
+    score: Optional[float] = Field(gt=0, lt=100, default=None,)
+    overview: Optional[str] = None
+    status: Optional[MovieStatusEnum] = None
+    budget: Optional[float] = Field(default=None, gt=0)
+    revenue: Optional[float] = Field(default=None, gt=0)
