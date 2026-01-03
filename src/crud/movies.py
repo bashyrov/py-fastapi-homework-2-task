@@ -37,6 +37,22 @@ async def get_or_create(db: AsyncSession, model, **kwargs):
     return instance
 
 
+async def get_or_create_country(code: str, db: AsyncSession, country_came: str = None) -> CountryModel:
+    stmt = select(CountryModel).where(CountryModel.code == code)
+    result = await db.execute(stmt)
+    country = result.scalars().first()
+
+    if country:
+        return country
+
+    new_country = CountryModel(code=code, name=country_came)
+    db.add(new_country)
+    await db.commit()
+    await db.refresh(new_country)
+
+    return new_country
+
+
 async def get_all_movies(
         db: AsyncSession = Depends(get_db),
         page: int = 1,
@@ -83,7 +99,7 @@ async def create_movie_model(db: AsyncSession, movie_data: MovieCreate) -> Type[
     movie_data = movie_data.model_dump()
     country = movie_data.get("country")
 
-    country = await get_or_create(db=db, name=country, code=country, model=CountryModel)
+    country = await get_or_create_country(db=db, code=country)
     genres = [await get_or_create(db=db, model=GenreModel, name=genre) for genre in movie_data.pop("genres")]
     actors = [await get_or_create(db=db, model=ActorModel, name=actor) for actor in movie_data.pop("actors")]
     languages = [await get_or_create(db=db, model=LanguageModel, name=language) for language in
@@ -138,11 +154,9 @@ async def update_movie_by_id(
         )
 
     update_data = movie_data.model_dump(exclude_unset=True)
-    print(update_data)
     for var, value in update_data.items():
-        print(var)
-        print(value)
-        setattr(movie, var, value) if value else None
+        if value is not None:
+            setattr(movie, var, value)
 
     db.add(movie)
     await db.commit()

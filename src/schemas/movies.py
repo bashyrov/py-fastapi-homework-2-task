@@ -50,7 +50,7 @@ class LanguageRead(LanguageBase):
 class MovieCreate(BaseModel):
     name: str = Field(max_length=255)
     date: datetime.date = Field(lt=datetime.date.today() + datetime.timedelta(days=365))
-    score: float = Field(gt=0, lt=100)
+    score: float = Field(ge=0, le=100)
     overview: str
     status: MovieStatusEnum
     budget: float = Field(gt=0)
@@ -98,7 +98,7 @@ class MovieDetailSchema(BaseModel):
     id: int
     name: str = Field(max_length=255)
     date: datetime.date = Field(lt=datetime.date.today() + datetime.timedelta(days=365))
-    score: float = Field(gt=0, lt=100)
+    score: float = Field(ge=0, le=100)
     overview: str
     status: MovieStatusEnum
     budget: float = Field(gt=0)
@@ -112,7 +112,7 @@ class MovieDetailSchema(BaseModel):
 class MovieUpdateSchema(BaseModel):
     name: Optional[str] = Field(max_length=255, default=None,)
     date: Optional[datetime.date] = Field(default=None, lt=datetime.date.today() + datetime.timedelta(days=365))
-    score: Optional[float] = Field(gt=0, lt=100, default=None,)
+    score: Optional[float] = Field(ge=0, le=100, default=None,)
     overview: Optional[str] = None
     status: Optional[MovieStatusEnum] = None
     budget: Optional[float] = Field(default=None, gt=0)
