@@ -70,7 +70,6 @@ async def get_movie_endpoint(
 
 
 @router.patch("/movies/{movie_id}/",
-              response_model=MovieUpdateSchema,
               status_code=200)
 async def update_movie_endpoint(
         movie_id: PositiveInt,

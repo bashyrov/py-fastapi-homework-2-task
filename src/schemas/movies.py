@@ -53,8 +53,8 @@ class MovieCreate(BaseModel):
     score: float = Field(ge=0, le=100)
     overview: str
     status: MovieStatusEnum
-    budget: float = Field(gt=0)
-    revenue: float = Field(gt=0)
+    budget: float = Field(ge=0)
+    revenue: float = Field(ge=0)
     country: str
     genres: List[str]
     actors: List[str]
@@ -101,8 +101,8 @@ class MovieDetailSchema(BaseModel):
     score: float = Field(ge=0, le=100)
     overview: str
     status: MovieStatusEnum
-    budget: float = Field(gt=0)
-    revenue: float = Field(gt=0)
+    budget: float = Field(ge=0)
+    revenue: float = Field(ge=0)
     country: CountryRead
     genres: List[GenreRead]
     actors: List[ActorRead]
@@ -115,5 +115,5 @@ class MovieUpdateSchema(BaseModel):
     score: Optional[float] = Field(ge=0, le=100, default=None,)
     overview: Optional[str] = None
     status: Optional[MovieStatusEnum] = None
-    budget: Optional[float] = Field(default=None, gt=0)
-    revenue: Optional[float] = Field(default=None, gt=0)
+    budget: Optional[float] = Field(default=None, ge=0)
+    revenue: Optional[float] = Field(default=None, ge=0)

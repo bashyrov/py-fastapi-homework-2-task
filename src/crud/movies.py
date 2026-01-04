@@ -47,8 +47,7 @@ async def get_or_create_country(code: str, db: AsyncSession, country_came: str =
 
     new_country = CountryModel(code=code, name=country_came)
     db.add(new_country)
-    await db.commit()
-    await db.refresh(new_country)
+    await db.flush()
 
     return new_country
 
